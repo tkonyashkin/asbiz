@@ -58,6 +58,19 @@ CANDIDATES = [
     Candidate("короткая постановка", SHORT),
     Candidate("постановка с правилами", DETAILED),
     Candidate("правила + рассуждение", DETAILED, body=THINKING, max_tokens=2048),
+    Candidate(
+        "правила + два примера",
+        DETAILED
+        + """
+
+Примеры разбора:
+Обращение: Отправил по СБП 4000 не туда, можно отменить перевод?
+Категория: платежи
+Обращение: Продавец согласовал возврат заказа, когда деньги придут?
+Категория: возвраты
+
+Теперь выбери категорию нового обращения. Ответь только её названием.""",
+    ),
 ]
 
 
@@ -149,6 +162,9 @@ def summarize(
         "p50, с": percentile(latencies, 0.5),
         "p95, с": percentile(latencies, 0.95),
         "первый токен p50, с": percentile(ttfts, 0.5),
+        "входных токенов на обращение": per(
+            total.input_tokens + total.cache_read_tokens + total.cache_write_tokens
+        ),
         "токенов на обращение": per(total.total_tokens),
         "взвешенных на обращение": per(total.weighted),
         "цена за 1000, у.е.": 1000 * per(total.cost),
